@@ -14,14 +14,5 @@
 
 
 
-    <Label fx:id="welcomeText" text = "spiele Tic Tac Toe!!"/>
-    <Button fx:id="button1" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button2" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button3" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button4" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button5" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button6" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button7" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button8" text=" " onAction="#onHelloButtonClick"/>
-    <Button fx:id="button9" text=" " onAction="#onHelloButtonClick"/>
+
 </VBox>
