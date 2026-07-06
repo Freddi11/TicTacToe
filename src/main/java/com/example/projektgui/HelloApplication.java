@@ -29,6 +29,20 @@ public class HelloApplication extends Application {
         stage.setTitle("TicTacToe");
         stage.setScene(scene);
         stage.show();
+
+        //Button b1 erstellt mit lage im Frame
+       // Button 1 für spiel beenden
+        Button b1 = new Button("Beenden");
+        b1.setPrefSize(70, 50);
+        b1.setLayoutX(50);
+        b1.setLayoutY(340);
+        root.getChildren().add(b1);
+        // Button 2 für zurücksetzen
+        Button b2 = new Button("Felder zurücksetzen");
+        b2.setPrefSize(130, 50);
+        b2.setLayoutX(130);
+        b2.setLayoutY(340);
+        root.getChildren().add(b2);
     }
 
     private Pane getGrid() {
