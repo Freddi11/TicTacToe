@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Button?>
+
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.projektgui.HelloController">
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0"/>
+    </padding>
+
+
+
+    <Label fx:id="welcomeText" text = "spiele Tic Tac Toe!!"/>
+    <Button fx:id="button1" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button2" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button3" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button4" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button5" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button6" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button7" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button8" text=" " onAction="#onHelloButtonClick"/>
+    <Button fx:id="button9" text=" " onAction="#onHelloButtonClick"/>
+</VBox>
