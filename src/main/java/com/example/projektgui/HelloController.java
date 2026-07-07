@@ -9,16 +9,7 @@ import java.awt.*;
 public class HelloController {
     static boolean spielerReihe = true;
     //True für X und False für 0
-
-
-    @FXML
-    private Label welcomeText;
-
-
-
-
-
-    }
+}
 
 
 

@@ -17,6 +17,9 @@ import static com.example.projektgui.HelloController.spielerReihe;
 
 public class HelloApplication extends Application {
     private  Button[][] btns = new Button[3][3];
+    String s;
+    boolean unentschieden = false;
+    boolean win = false;
 
     @Override
     public void start(Stage stage) {
@@ -36,11 +39,13 @@ public class HelloApplication extends Application {
         einfuehrung.setLayoutY(1);
         root.getChildren().add(einfuehrung);
 
-        Label whoWins = new Label("");
+        Label whoWins = new Label(" winner");
         whoWins.setPrefSize(220, 100);
         whoWins.setLayoutX(150);
         whoWins.setLayoutY(1);
         root.getChildren().add(whoWins);
+        win();
+        whoWins.setText(s);
 
 
         //Button b1 erstellt mit lage im Frame
@@ -132,16 +137,57 @@ public class HelloApplication extends Application {
 
     }
 
-
+    /* 1 2 3
+       4 5 6
+       7 8 9 */
     public void win() {
         for (int i = 0; i < btns.length; i++)
         {
-            for (int e = 0; e < btns.length; e++)
-            {
+
+            if (!btns[i][0].getText().isEmpty() &&
+                    btns[i][0].getText().equals(btns[i][1].getText()) &&
+                    btns[i][0].getText().equals(btns[i][2].getText())) {
+
+                System.out.println (btns[i][0].getText() + " gewinnt");
+                buttonsleeren();
+
+
 
             }
+            if (!btns[0][i].getText().isEmpty() &&
+                    btns[0][i].getText().equals(btns[1][i].getText()) &&
+                    btns[0][i].getText().equals(btns[2][i].getText())) {
+
+                System.out.println (btns[0][i].getText() + " gewinnt");
+                buttonsleeren();
+
+
+
+            }
+            if (!btns[0][0].getText().isEmpty() &&
+                    btns[0][0].getText().equals(btns[1][1].getText()) &&
+                    btns[0][0].getText().equals(btns[2][2].getText())) {
+
+                System.out.println (btns[0][0].getText() + " gewinnt");
+                buttonsleeren();
+
+
+            }
+            if (!btns[0][2].getText().isEmpty() &&
+                    btns[0][2].getText().equals(btns[1][1].getText()) &&
+                    btns[0][2].getText().equals(btns[2][0].getText())) {
+
+                System.out.println (btns[0][2].getText() + " gewinnt");
+                buttonsleeren();
+
+
+
+            }
+
+
         }
     }
+
 }
 
 
