@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import static com.example.projektgui.HelloController.spielerReihe;
 
 public class HelloApplication extends Application {
-    private final Button[] btns = new Button[9];
+    private  Button[][] btns = new Button[3][3];
 
     @Override
     public void start(Stage stage) {
@@ -23,18 +24,31 @@ public class HelloApplication extends Application {
         Group root = new Group();
 
         root.getChildren().add(getGrid());
-        Scene scene = new Scene(root, 400, 400);
+        Scene scene = new Scene(root, 500, 500);
 
         stage.setTitle("TicTacToe");
         stage.setScene(scene);
         stage.show();
 
+        Label einfuehrung = new Label("spiele TicTacToe gegen einen anderen!!...");
+        einfuehrung.setPrefSize(220, 100);
+        einfuehrung.setLayoutX(1);
+        einfuehrung.setLayoutY(1);
+        root.getChildren().add(einfuehrung);
+
+        Label whoWins = new Label("");
+        whoWins.setPrefSize(220, 100);
+        whoWins.setLayoutX(150);
+        whoWins.setLayoutY(1);
+        root.getChildren().add(whoWins);
+
+
         //Button b1 erstellt mit lage im Frame
-       // Button 1 für spiel beenden
+        // Button 1 für spiel beenden
         Button b1 = new Button("Beenden");
         b1.setPrefSize(70, 50);
-        b1.setLayoutX(50);
-        b1.setLayoutY(340);
+        b1.setLayoutX(100);
+        b1.setLayoutY(420);
         root.getChildren().add(b1);
         b1.setOnAction(event -> {
             stage.close();
@@ -44,8 +58,8 @@ public class HelloApplication extends Application {
         // Button 2 für zurücksetzen
         Button b2 = new Button("Felder zurücksetzen");
         b2.setPrefSize(130, 50);
-        b2.setLayoutX(130);
-        b2.setLayoutY(340);
+        b2.setLayoutX(200);
+        b2.setLayoutY(420);
         root.getChildren().add(b2);
         b2.setOnAction(event -> {
             buttonsleeren();
@@ -60,73 +74,77 @@ public class HelloApplication extends Application {
 
         // Wir nutzen eine normale for-Schleife mit 'i', damit wir den Index direkt haben
         for (int i = 0; i < btns.length; i++) {
-            Button b = btns[i];
+            for (int e = 0; e < btns.length; e++) {
+                Button b = btns[i][e];
 
-            b.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    Button geklickterButton = (Button) actionEvent.getSource();
 
-                    // Prüfen, ob das Feld bereits besetzt ist (Text ist NICHT leer)
-                    if (!geklickterButton.getText().equals("")) {
-                        return; // Feld ist besetzt -> Tu nichts und brich ab
+                b.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        Button geklickterButton = (Button) actionEvent.getSource();
+
+                        // Prüfen, ob das Feld bereits besetzt ist
+                        if (!geklickterButton.getText().equals("")) {
+                            return; // Feld ist besetzt -> Tu nichts und brich ab
+                        }
+
+                        // Zeichen setzen je nachdem wer dran ist
+                        if (spielerReihe == true) {
+                            geklickterButton.setText("X");
+                            spielerReihe = false;
+                        } else {
+                            geklickterButton.setText("O");
+                            spielerReihe = true;
+                        }
+                        win();
+
+
                     }
+                });
 
-                    // Zeichen setzen je nachdem wer dran ist
-                    if (spielerReihe) {
-                        geklickterButton.setText("X");
-                    } else {
-                        geklickterButton.setText("O");
-                    }
-
-                    // Spieler wechseln (aus true wird false, aus false wird true)
-                    spielerReihe = !spielerReihe;
-
-
-
-
-
-
-                }
-            });
-
-            // MATHEMATISCHER TRICK FÜR DAS 3x3 GITTER:
-            // Spalte ist der Rest der Division durch 3 (0, 1, 2, 0, 1, 2...)
-            int spalte = i % 3;
-            // Zeile ist das Ergebnis der Division ohne Rest (0, 0, 0, 1, 1, 1, 2, 2, 2)
-            int zeile = i / 3;
-
-            gridPane.add(b, spalte, zeile);
-            gridPane.setTranslateX(35);
-            gridPane.setTranslateY(10);
+                gridPane.add(b, e, i);
+                gridPane.setTranslateX(70);
+                gridPane.setTranslateY(70);
+            }
         }
         return gridPane;
     }
 
+    //Buttons erstellen
     private void initBtnsArray() {
-        for(int i = 0; i < btns.length; i++) {
-            // Für TicTacToe starten wir am besten mit leeren Buttons "" statt "Button-i"
-            btns[i] = new Button("");
-            btns[i].setPrefSize(100, 100); // Gibt den Buttons eine schöne quadratische Größe
-
+        for (int i = 0; i < btns.length; i++) { // Läuft von 0 bis 2 (3 Zeilen)
+            for (int e = 0; e < btns[i].length; e++) { // Läuft von 0 bis 2 (3 Spalten pro Zeile)
+                btns[i][e] = new Button("");
+                btns[i][e].setPrefSize(100, 100);
+            }
         }
     }
-    
-    //btns[x] 
-    
+
+
+
     //alle Buttons wieder leeren
-
-    public void buttonsleeren()
-    {
-
-
-
-        for(int i = 0; i < btns.length; i++) {
-            btns[i].setText("");
+    public void buttonsleeren() {
+        for (int i = 0; i < btns.length; i++) {
+            for (int e = 0; e < btns.length; e++) {
+                btns[i][e].setText("");
+            }
         }
 
     }
+
+
+    public void win() {
+        for (int i = 0; i < btns.length; i++)
+        {
+            for (int e = 0; e < btns.length; e++)
+            {
+
+            }
+        }
     }
+}
+
+
 
 
 
