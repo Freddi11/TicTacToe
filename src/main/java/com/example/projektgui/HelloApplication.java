@@ -16,10 +16,13 @@ import java.io.IOException;
 import static com.example.projektgui.HelloController.spielerReihe;
 
 public class HelloApplication extends Application {
+
+    //variabeln initialisieren
     private  Button[][] btns = new Button[3][3];
-    String s;
-    boolean unentschieden = false;
-    boolean win = false;
+    Label whoWins;
+    Label einfuehrung;
+    Button b2;
+    Button b1;
 
     @Override
     public void start(Stage stage) {
@@ -33,24 +36,22 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        Label einfuehrung = new Label("spiele TicTacToe gegen einen anderen!!...");
+        einfuehrung= new Label("spiele TicTacToe...!!");
         einfuehrung.setPrefSize(220, 100);
-        einfuehrung.setLayoutX(1);
+        einfuehrung.setLayoutX(70);
         einfuehrung.setLayoutY(1);
         root.getChildren().add(einfuehrung);
 
-        Label whoWins = new Label(" winner");
+        whoWins = new Label("Es gibt noch keinen Gewinner :)");
         whoWins.setPrefSize(220, 100);
-        whoWins.setLayoutX(150);
+        whoWins.setLayoutX(290);
         whoWins.setLayoutY(1);
         root.getChildren().add(whoWins);
-        win();
-        whoWins.setText(s);
 
 
         //Button b1 erstellt mit lage im Frame
         // Button 1 für spiel beenden
-        Button b1 = new Button("Beenden");
+        b1 = new Button("Beenden");
         b1.setPrefSize(70, 50);
         b1.setLayoutX(100);
         b1.setLayoutY(420);
@@ -61,7 +62,7 @@ public class HelloApplication extends Application {
 
 
         // Button 2 für zurücksetzen
-        Button b2 = new Button("Felder zurücksetzen");
+        b2 = new Button("Felder zurücksetzen");
         b2.setPrefSize(130, 50);
         b2.setLayoutX(200);
         b2.setLayoutY(420);
@@ -71,6 +72,7 @@ public class HelloApplication extends Application {
         });
 
     }
+
 
     private Pane getGrid() {
         GridPane gridPane = new GridPane();
@@ -148,7 +150,7 @@ public class HelloApplication extends Application {
                     btns[i][0].getText().equals(btns[i][1].getText()) &&
                     btns[i][0].getText().equals(btns[i][2].getText())) {
 
-                System.out.println (btns[i][0].getText() + " gewinnt");
+                whoWins.setText(btns[i][0].getText() + " gewinnt");
                 buttonsleeren();
 
 
@@ -158,7 +160,7 @@ public class HelloApplication extends Application {
                     btns[0][i].getText().equals(btns[1][i].getText()) &&
                     btns[0][i].getText().equals(btns[2][i].getText())) {
 
-                System.out.println (btns[0][i].getText() + " gewinnt");
+                whoWins.setText(btns[0][i].getText() + " gewinnt");
                 buttonsleeren();
 
 
@@ -168,7 +170,7 @@ public class HelloApplication extends Application {
                     btns[0][0].getText().equals(btns[1][1].getText()) &&
                     btns[0][0].getText().equals(btns[2][2].getText())) {
 
-                System.out.println (btns[0][0].getText() + " gewinnt");
+                whoWins .setText(btns[0][0].getText() + " gewinnt");
                 buttonsleeren();
 
 
@@ -177,7 +179,7 @@ public class HelloApplication extends Application {
                     btns[0][2].getText().equals(btns[1][1].getText()) &&
                     btns[0][2].getText().equals(btns[2][0].getText())) {
 
-                System.out.println (btns[0][2].getText() + " gewinnt");
+              whoWins.setText(btns[0][2].getText() + " gewinnt");
                 buttonsleeren();
 
 
