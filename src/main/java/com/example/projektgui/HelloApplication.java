@@ -115,6 +115,7 @@ public class HelloApplication extends Application {
                         if (zuege == 9 && win == false)
                         {
                             whoWins.setText("Es gibt keinen Gewinner :(");
+                            buttonsleeren();
                             zuege = 0;
 
                         }
@@ -155,68 +156,94 @@ public class HelloApplication extends Application {
     /* 1 2 3
        4 5 6
        7 8 9 */
-    public void win() {
-        int[] vektor1 = new int[2];
-        int[] vektor2 = new int[2];
-        int[] vektor3 = new int[2];
+    public void win()
+    {
+        int x= 0;
+        int y= 0;
+
         for (int i = 0; i < btns.length; i++) {
 
+            if (btns[i][i].getText().equals("X")) {
+                x++;
 
+            }
+            if (btns[i][i].getText().equals("O")) {
 
-            if (!btns[i][0].getText().isEmpty() &&
-                    btns[i][0].getText().equals(btns[i][1].getText()) &&
-                    btns[i][0].getText().equals(btns[i][2].getText())) {
-
-                whoWins.setText(btns[i][0].getText() + " gewinnt");
+                y++;
+            }
+            if (x == 3)
+            {
+                whoWins.setText(btns[i][i].getText() + " gewinnt");
                 win = true;
                 buttonsleeren();
 
-
             }
-            if (!btns[0][i].getText().isEmpty() &&
-                    btns[0][i].getText().equals(btns[1][i].getText()) &&
-                    btns[0][i].getText().equals(btns[2][i].getText())) {
-
-                whoWins.setText(btns[0][i].getText() + " gewinnt");
+            if (y == 3) {
+                whoWins.setText(btns[i][i].getText() + " gewinnt");
                 win = true;
-
                 buttonsleeren();
 
+                }
+            }
+
+
+        for (int i = 0; i < btns.length; i++) {
+
+            for (int e = 0; e < btns.length; e++) {
+            if(btns[i][e].getText().equals("X")) {
+                x++;
 
             }
-            if (!btns[0][0].getText().isEmpty() &&
-                    btns[0][0].getText().equals(btns[1][1].getText()) &&
-                    btns[0][0].getText().equals(btns[2][2].getText())) {
-
-                whoWins.setText(btns[0][0].getText() + " gewinnt");
+                if(btns[e][i].getText().equals("O")) {
+                    y++;
+                }
+            if(x ==3)
+            {
+                whoWins.setText(btns[i][e].getText() + " gewinnt");
                 win = true;
-
-                buttonsleeren();
-
-
-            }
-            if (!btns[0][2].getText().isEmpty() &&
-                    btns[0][2].getText().equals(btns[1][1].getText()) &&
-                    btns[0][2].getText().equals(btns[2][0].getText())) {
-
-                whoWins.setText(btns[0][2].getText() + " gewinnt");
-                win = true;
-
-                buttonsleeren();
-
-
-            }
-
-            if (zuege == 9 && win == false) {
-                whoWins.setText("Es gibt keinen Gewinner");
                 buttonsleeren();
             }
+            x = 0;
+            if(y ==3)
+                {
+                    whoWins.setText(btns[i][i].getText() + " gewinnt");
+                    win = true;
+                    buttonsleeren();
 
+                }
         }
+            y = 0;
 
 
-    }
-}
+
+
+
+
+       /* for (int f = 0; f < btns.length; f++) {
+
+            for (int e = 0; e < btns.length; e++) {
+                if(btns[e][f].getText().equals("X")) {
+                    x++;
+                }
+                if(btns[e][f].getText().equals("O")) {
+                    y++;
+                if(x ==3)
+                {
+                    whoWins.setText(btns[e][f].getText() + " gewinnt");
+                    win = true;
+                    buttonsleeren();
+                }
+            }
+            x = 0;
+                y = 0;*/
+
+
+
+        }}}
+
+
+
+
 
 
 
