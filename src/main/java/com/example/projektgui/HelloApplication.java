@@ -18,11 +18,13 @@ import static com.example.projektgui.HelloController.spielerReihe;
 public class HelloApplication extends Application {
 
     //variabeln initialisieren
-    private  Button[][] btns = new Button[3][3];
+    private Button[][] btns = new Button[3][3];
     Label whoWins;
     Label einfuehrung;
     Button b2;
     Button b1;
+    int zuege = 0;
+    boolean win = false;
 
     @Override
     public void start(Stage stage) {
@@ -36,7 +38,7 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        einfuehrung= new Label("spiele TicTacToe...!!");
+        einfuehrung = new Label("spiele TicTacToe...!!");
         einfuehrung.setPrefSize(220, 100);
         einfuehrung.setLayoutX(70);
         einfuehrung.setLayoutY(1);
@@ -96,17 +98,28 @@ public class HelloApplication extends Application {
                         }
 
                         // Zeichen setzen je nachdem wer dran ist
+                        // SpielerReihe = true == X
+                        //SpielerReihe = false == O
+
                         if (spielerReihe == true) {
                             geklickterButton.setText("X");
                             spielerReihe = false;
+                            zuege++;
                         } else {
                             geklickterButton.setText("O");
                             spielerReihe = true;
+                            zuege++;
                         }
                         win();
 
+                        if (zuege == 9 && win == false)
+                        {
+                            whoWins.setText("Es gibt keinen Gewinner :(");
+                            zuege = 0;
 
+                        }
                     }
+
                 });
 
                 gridPane.add(b, e, i);
@@ -128,7 +141,6 @@ public class HelloApplication extends Application {
     }
 
 
-
     //alle Buttons wieder leeren
     public void buttonsleeren() {
         for (int i = 0; i < btns.length; i++) {
@@ -136,23 +148,28 @@ public class HelloApplication extends Application {
                 btns[i][e].setText("");
             }
         }
-
+        zuege = 0;
+        win = false;
     }
 
     /* 1 2 3
        4 5 6
        7 8 9 */
     public void win() {
-        for (int i = 0; i < btns.length; i++)
-        {
+        int[] vektor1 = new int[2];
+        int[] vektor2 = new int[2];
+        int[] vektor3 = new int[2];
+        for (int i = 0; i < btns.length; i++) {
+
+
 
             if (!btns[i][0].getText().isEmpty() &&
                     btns[i][0].getText().equals(btns[i][1].getText()) &&
                     btns[i][0].getText().equals(btns[i][2].getText())) {
 
                 whoWins.setText(btns[i][0].getText() + " gewinnt");
+                win = true;
                 buttonsleeren();
-
 
 
             }
@@ -161,8 +178,9 @@ public class HelloApplication extends Application {
                     btns[0][i].getText().equals(btns[2][i].getText())) {
 
                 whoWins.setText(btns[0][i].getText() + " gewinnt");
-                buttonsleeren();
+                win = true;
 
+                buttonsleeren();
 
 
             }
@@ -170,7 +188,9 @@ public class HelloApplication extends Application {
                     btns[0][0].getText().equals(btns[1][1].getText()) &&
                     btns[0][0].getText().equals(btns[2][2].getText())) {
 
-                whoWins .setText(btns[0][0].getText() + " gewinnt");
+                whoWins.setText(btns[0][0].getText() + " gewinnt");
+                win = true;
+
                 buttonsleeren();
 
 
@@ -179,18 +199,27 @@ public class HelloApplication extends Application {
                     btns[0][2].getText().equals(btns[1][1].getText()) &&
                     btns[0][2].getText().equals(btns[2][0].getText())) {
 
-              whoWins.setText(btns[0][2].getText() + " gewinnt");
-                buttonsleeren();
+                whoWins.setText(btns[0][2].getText() + " gewinnt");
+                win = true;
 
+                buttonsleeren();
 
 
             }
 
+            if (zuege == 9 && win == false) {
+                whoWins.setText("Es gibt keinen Gewinner");
+                buttonsleeren();
+            }
 
         }
-    }
 
+
+    }
 }
+
+
+
 
 
 
