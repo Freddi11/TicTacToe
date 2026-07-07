@@ -1,5 +1,4 @@
 package com.example.projektgui;
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -37,12 +36,21 @@ public class HelloApplication extends Application {
         b1.setLayoutX(50);
         b1.setLayoutY(340);
         root.getChildren().add(b1);
+        b1.setOnAction(event -> {
+            stage.close();
+        });
+
+
         // Button 2 für zurücksetzen
         Button b2 = new Button("Felder zurücksetzen");
         b2.setPrefSize(130, 50);
         b2.setLayoutX(130);
         b2.setLayoutY(340);
         root.getChildren().add(b2);
+        b2.setOnAction(event -> {
+            buttonsleeren();
+        });
+
     }
 
     private Pane getGrid() {
@@ -73,6 +81,12 @@ public class HelloApplication extends Application {
 
                     // Spieler wechseln (aus true wird false, aus false wird true)
                     spielerReihe = !spielerReihe;
+
+
+
+
+
+
                 }
             });
 
@@ -83,6 +97,8 @@ public class HelloApplication extends Application {
             int zeile = i / 3;
 
             gridPane.add(b, spalte, zeile);
+            gridPane.setTranslateX(35);
+            gridPane.setTranslateY(10);
         }
         return gridPane;
     }
@@ -92,32 +108,25 @@ public class HelloApplication extends Application {
             // Für TicTacToe starten wir am besten mit leeren Buttons "" statt "Button-i"
             btns[i] = new Button("");
             btns[i].setPrefSize(100, 100); // Gibt den Buttons eine schöne quadratische Größe
+
         }
     }
     
     //btns[x] 
     
     //alle Buttons wieder leeren
+
     public void buttonsleeren()
     {
-        Button b1 = new Button("");
-        b1.setPrefSize(100, 100);
+
+
+
         for(int i = 0; i < btns.length; i++) {
             btns[i].setText("");
-
-    }
-    }
-    public void win()
-    {
-        //Array 0 bis 8;
-        //schauen wann 3 Miteindaner verbunden sind
-        for(int i = 0; i < btns.length; i++) {
-            if (btns[0].getText().equals("X")&& btns[1].getText().equals("X")&& btns[2].getText().equals("X"))
-            {
-                buttonsleeren();
-            }
         }
 
     }
-}
+    }
+
+
 
