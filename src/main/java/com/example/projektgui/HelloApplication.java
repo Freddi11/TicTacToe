@@ -1,3 +1,4 @@
+
 package com.example.projektgui;
 
 import javafx.application.Application;
@@ -11,7 +12,6 @@ import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
-// WICHTIG: Die ungenutzten AWT-Imports entfernen (beißt sich manchmal mit JavaFX)
 import java.io.IOException;
 import java.util.Objects;
 
@@ -19,7 +19,6 @@ import static com.example.projektgui.HelloController.spielerReihe;
 
 public class HelloApplication extends Application {
 
-    //variabeln initialisieren
     private Button[][] btns = new Button[3][3];
     Label whoWins;
     Label einfuehrung;
@@ -38,12 +37,16 @@ public class HelloApplication extends Application {
         root.setStyle("-fx-background-color: #3498db;");
 
         stage.setTitle("TicTacToe");
-        javafx.scene.image.Image icon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon1.png")));
-        stage.getIcons().add(icon);
+        {
+
+            javafx.scene.image.Image icon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon1.png")));
+            stage.getIcons().add(icon);
+        }
+
         stage.setScene(scene);
         stage.show();
 
-        einfuehrung = new Label("spiele TicTacToe...!!");
+        einfuehrung = new Label("Spiele TicTacToe...!!");
         einfuehrung.setPrefSize(220, 100);
         einfuehrung.setLayoutX(50);
         einfuehrung.setLayoutY(1);
@@ -55,9 +58,6 @@ public class HelloApplication extends Application {
         whoWins.setLayoutY(1);
         root.getChildren().add(whoWins);
 
-
-        //Button b1 erstellt mit lage im Frame
-        // Button 1 für spiel beenden
         b1 = new Button("Beenden");
         b1.setPrefSize(70, 50);
         b1.setLayoutX(100);
@@ -67,8 +67,6 @@ public class HelloApplication extends Application {
             stage.close();
         });
 
-
-        // Button 2 für zurücksetzen
         b2 = new Button("Felder zurücksetzen");
         b2.setPrefSize(130, 50);
         b2.setLayoutX(200);
@@ -76,191 +74,149 @@ public class HelloApplication extends Application {
         root.getChildren().add(b2);
         b2.setOnAction(event -> {
             buttonsleeren();
+            whoWins.setText("Es gibt noch keinen Gewinner :)");
         });
-
     }
-
 
     private Pane getGrid() {
         GridPane gridPane = new GridPane();
-        gridPane.setHgap(10); // Abstand zwischen den Spalten
-        gridPane.setVgap(10); // Abstand zwischen den Zeilen
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
 
-        // Wir nutzen eine normale for-Schleife mit 'i', damit wir den Index direkt haben
         for (int i = 0; i < btns.length; i++) {
             for (int e = 0; e < btns.length; e++) {
                 Button b = btns[i][e];
-
 
                 b.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         Button geklickterButton = (Button) actionEvent.getSource();
 
-                        // Prüfen, ob das Feld bereits besetzt ist
-                        if (!geklickterButton.getText().equals("")) {
-                            return; // Feld ist besetzt -> Tu nichts und brich ab
+                        // Wenn das Spiel schon gewonnen ist oder Feld besetzt, mach nichts
+                        if (!geklickterButton.getText().equals("") || win) {
+                            return;
                         }
 
-                        // Zeichen setzen je nachdem wer dran ist
-                        // SpielerReihe = true == X
-                        //SpielerReihe = false == O
-
-                        if (spielerReihe == true) {
+                        if (spielerReihe) {
                             geklickterButton.setText("X");
                             spielerReihe = false;
-                            zuege++;
                         } else {
                             geklickterButton.setText("O");
                             spielerReihe = true;
-                            zuege++;
                         }
-                        win();
+                        zuege++;
 
-                        if (zuege == 9 && win == false) {
+                        // Gewinner prüfen (3er Kette gesucht)
+                        String gewinner = check(btns, 3);
+                        if (!gewinner.isEmpty()) {
+                            whoWins.setText("Spieler " + gewinner + " gewinnt!");
+                            buttonsleeren();
+                        } else if (zuege == 9) {
                             whoWins.setText("Es gibt keinen Gewinner :(");
                             buttonsleeren();
-                            zuege = 0;
-
                         }
                     }
-
                 });
 
                 gridPane.add(b, e, i);
-                gridPane.setTranslateX(50);
-                gridPane.setTranslateY(70);
             }
         }
+        // Verschiebung des gesamten GridPanes einmalig setzen (außerhalb der Schleife reicht)
+        gridPane.setTranslateX(50);
+        gridPane.setTranslateY(70);
         return gridPane;
     }
 
-    //Buttons erstellen
     private void initBtnsArray() {
-        for (int i = 0; i < btns.length; i++) { // Läuft von 0 bis 2 (3 Zeilen)
-            for (int e = 0; e < btns[i].length; e++) { // Läuft von 0 bis 2 (3 Spalten pro Zeile)
+        for (int i = 0; i < btns.length; i++) {
+            for (int e = 0; e < btns[i].length; e++) {
                 btns[i][e] = new Button("");
                 btns[i][e].setPrefSize(100, 100);
+                // Schickere Schriftgröße für das X und O
+                btns[i][e].setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
             }
         }
     }
 
-
-    //alle Buttons wieder leeren
     public void buttonsleeren() {
-        for (int i = 0; i < btns.length; i++) {
-            for (int e = 0; e < btns.length; e++) {
-                btns[i][e].setText("");
+
+
+
+            for (int i = 0; i < btns.length; i++) {
+                for (int e = 0; e < btns.length; e++) {
+                    btns[i][e].setText("");
+                }
             }
+            zuege = 0;
+            win = false;
         }
-        zuege = 0;
-        win = false;
-    }
 
     /* 1 2 3
        4 5 6
        7 8 9 */
-    public void win() {
-        int x = 0;
-        int y = 0;
-        int a = 0;
-        int b = 0;
-
+    public String check(Button[][] btns, int score) {
+        //vertical Vektor 0/1
+        for (int i = 0; i < btns[0].length; i++) {
+            String result = checkLine(btns, i,0 , 0, 1, score);
+            if (!result.isEmpty()) {
+                return result;
+            }
+        }
+        //horizontal Vektor 1/0
+        for (int i = 0; i < btns[0].length; i++) {
+            String result = checkLine(btns, 0,i , 1, 0, score);
+            if (!result.isEmpty()) {
+                return result;
+            }
+        }
+        //diagonal / Vektor -1/1
         for (int i = 0; i < btns.length; i++) {
-            if (btns[i][i].getText().equals("X")) {
-                x++;
+            String result = checkLine(btns, btns[0].length-1, 0, -1, 1, score);
+                if (!result.isEmpty()) {
+                    return result;
+                }
             }
-            if (btns[i][i].getText().equals("O")) {
 
-                y++;
-            }
-            if (x == 3) {
-                whoWins.setText(btns[i][i].getText() + " gewinnt");
-                win = true;
-                buttonsleeren();
-            }
-            if (y == 3) {
-                whoWins.setText(btns[i][i].getText() + " gewinnt");
-                win = true;
-                buttonsleeren();
-            }
-        }
+        //diagonal\ Vektor 1/1
         for (int i = 0; i < btns.length; i++) {
-            x = 0;
-            y = 0;
-
-            for (int c = 0; c < btns[i].length; c++) {
-                if (btns[i][c].getText().equals("X")) {
-                    x++;
-                }
-                if (btns[i][c].getText().equals("O")) {
-                    y++;
-                }
-                if (x == 3) {
-
-                    whoWins.setText(btns[i][c].getText() + " gewinnt");
-
-                    win = true;
-                    buttonsleeren();
-                    x = 0;
-                }
-
-                if (y == 3) {
-                    whoWins.setText(btns[i][c].getText() + " gewinnt");
-                    win = true;
-                    buttonsleeren();
-                }
+            String result = checkLine(btns, i, i, 1, 1, score);
+            if (!result.isEmpty()) {
+                return result;
             }
         }
+        return "";
+    }
 
-        for (int i = 0; i < btns.length; i++) {
-            x = 0;
-            y = 0;
+    public String checkLine(Button[][] btns, int x, int y, int deltaX, int deltaY, int score) {
+        int height = btns.length;
+        int width = btns[0].length;
+        String currentSymbol = "";
+        int symbolCounter = 0;
 
-            for (int c = 0; c < btns[i].length; c++) {
-                if (btns[c][i].getText().equals("X")) {
-                    x++;
-                }
-                if (btns[c][i].getText().equals("O")) {
-                    y++;
-                }
-                if (x == 3) {
+        // Wichtig: x >= 0 hinzugefügt, falls deltaX negativ ist (für die / Diagonale)
+        while (x < btns.length && x < width && y >= 0 && y < height) {
+            String symbol = btns[y][x].getText();
 
-                    whoWins.setText(btns[c][i].getText() + " gewinnt");
-
-                    win = true;
-                    buttonsleeren();
-                    x = 0;
-                }
-
-                if (y == 3) {
-                    whoWins.setText(btns[c][i].getText() + " gewinnt");
-                    win = true;
-                    buttonsleeren();
-                }
+            if (symbol.isEmpty()) {
+                currentSymbol = "";
+                symbolCounter = 0;
             }
+            else if (symbol.equals(currentSymbol)) {
+                symbolCounter++;
+            }
+            else {
+                currentSymbol = symbol;
+                symbolCounter = 1;
+            }
+            if (symbolCounter == score && !symbol.isEmpty()) {
+                //wer hat gewonnen
+                return symbol;
+            }
+            x = x + deltaX;
+            y = y + deltaY;
         }
 
-        x = 0;
-        y = 0;
-        for (int c = 2; c >= 0; c--) {
-            if (btns[2 - c][c].getText().equals("X")) {
-                x++;
-            }
-            if (btns[2 - c][c].getText().equals("O")) {
-
-                y++;
-            }
-            if (x == 3) {
-                whoWins.setText(btns[2 - c][c].getText() + " gewinnt");
-                win = true;
-                buttonsleeren();
-            }
-            if (y == 3) {
-                whoWins.setText(btns[2 - c][c].getText() + " gewinnt");
-                win = true;
-                buttonsleeren();
-            }
-        }
+        // wenn keine reihe gefunden wurde
+        return "";
     }
 }
