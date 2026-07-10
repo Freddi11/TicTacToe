@@ -24,8 +24,11 @@ public class HelloApplication extends Application {
     Label einfuehrung;
     Button b2;
     Button b1;
+    Button einSpieler;
+    Button zweiSpieler;
     int zuege = 0;
     boolean win = false;
+    String spielModi;
 
     @Override
     public void start(Stage stage) {
@@ -46,36 +49,66 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        einfuehrung = new Label("Spiele TicTacToe...!!");
+        einfuehrung = new Label("");
         einfuehrung.setPrefSize(220, 100);
         einfuehrung.setLayoutX(50);
         einfuehrung.setLayoutY(1);
-        root.getChildren().add(einfuehrung);
+        if(spielModi == "1Spieler" ||spielModi == "2Spieler"){
+            root.getChildren().add(einfuehrung);
+        }
 
-        whoWins = new Label("Es gibt noch keinen Gewinner :)");
+
+        whoWins = new Label("");
         whoWins.setPrefSize(180, 100);
         whoWins.setLayoutX(200);
         whoWins.setLayoutY(1);
-        root.getChildren().add(whoWins);
-
-        b1 = new Button("Beenden");
+        if(spielModi == "1Spieler" ||spielModi == "2Spieler") {
+            root.getChildren().add(whoWins);
+        }
+        b1 = new Button("");
         b1.setPrefSize(70, 50);
         b1.setLayoutX(100);
         b1.setLayoutY(420);
-        root.getChildren().add(b1);
+        if(spielModi == "1Spieler" ||spielModi == "2Spieler") {
+            root.getChildren().add(b1);
+        }
         b1.setOnAction(event -> {
             stage.close();
         });
-
-        b2 = new Button("Felder zurücksetzen");
+        b2 = new Button("");
         b2.setPrefSize(130, 50);
         b2.setLayoutX(200);
         b2.setLayoutY(420);
-        root.getChildren().add(b2);
+        if(spielModi == "1Spieler" ||spielModi == "2Spieler") {
+            root.getChildren().add(b2);
+        }
         b2.setOnAction(event -> {
             buttonsleeren();
             whoWins.setText("Es gibt noch keinen Gewinner :)");
         });
+
+
+        einSpieler = new Button("1Spieler");
+        einSpieler.setPrefSize(70, 50);
+        einSpieler.setLayoutX(120);
+        einSpieler.setLayoutY(240);
+        root.getChildren().add(einSpieler);
+        einSpieler.setOnAction(event -> {
+            System.out.println("Ein Spieler wurde ausgewählt ");
+            spielModi = "1Spieler";
+        });
+        zweiSpieler = new Button("2Spieler");
+        zweiSpieler.setPrefSize(70, 50);
+        zweiSpieler.setLayoutX(220);
+        zweiSpieler.setLayoutY(240);
+        root.getChildren().add(zweiSpieler);
+        zweiSpieler.setOnAction(event -> {
+            System.out.println(" Zwei Spieler wurde ausgewählt");
+            spielModi = "2Spieler";
+
+        });
+
+
     }
 
     private Pane getGrid() {
@@ -117,8 +150,13 @@ public class HelloApplication extends Application {
                         }
                     }
                 });
+                if(spielModi == "1Spieler" ||  spielModi == "2Spieler") {
+                    gridPane.add(b, e, i);
+                    whoWins.setText("Es gibt noch keinen Gewinner :)");
+                    b1.setText("Beenden");
+                    b2.setText("Felder zurücksetzen");
+                }
 
-                gridPane.add(b, e, i);
             }
         }
         // Verschiebung des gesamten GridPanes einmalig setzen (außerhalb der Schleife reicht)
@@ -132,17 +170,14 @@ public class HelloApplication extends Application {
             for (int e = 0; e < btns[i].length; e++) {
                 btns[i][e] = new Button("");
                 btns[i][e].setPrefSize(100, 100);
-                // Schickere Schriftgröße für das X und O
+                // größere Schrift für das X und O
                 btns[i][e].setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
             }
         }
     }
 
     public void buttonsleeren() {
-
-
-
-            for (int i = 0; i < btns.length; i++) {
+        for (int i = 0; i < btns.length; i++) {
                 for (int e = 0; e < btns.length; e++) {
                     btns[i][e].setText("");
                 }
@@ -171,18 +206,32 @@ public class HelloApplication extends Application {
         }
         //diagonal / Vektor -1/1
         for (int i = 0; i < btns.length; i++) {
-            String result = checkLine(btns, btns[0].length-1, 0, -1, 1, score);
-                if (!result.isEmpty()) {
-                    return result;
-                }
-            }
-
-        //diagonal\ Vektor 1/1
-        for (int i = 0; i < btns.length; i++) {
-            String result = checkLine(btns, i, i, 1, 1, score);
+            //geht horizontal
+            String result = checkLine(btns, 0, i, -1, 1, score);
             if (!result.isEmpty()) {
                 return result;
             }
+            result = checkLine(btns, i, btns[0].length - 1, 1, -1, score);
+            if (!result.isEmpty()) {
+                return result;
+            }
+
+        }
+
+        //diagonal\ Vektor 1/1
+        for (int i = 0; i < btns.length; i++) {
+            //geht horizontal
+            String result = checkLine(btns, 0,i ,1, 1, score);
+            if (!result.isEmpty()) {
+                return result;
+            }
+            //geht diagonal von 0/0 bis 0/2
+            result = checkLine(btns, 0,i ,1, 1, score);
+            if (!result.isEmpty()) {
+                return result;
+            }
+            //geht diagonal von 2/0 bis 2/2
+
         }
         return "";
     }
@@ -193,8 +242,7 @@ public class HelloApplication extends Application {
         String currentSymbol = "";
         int symbolCounter = 0;
 
-        // Wichtig: x >= 0 hinzugefügt, falls deltaX negativ ist (für die / Diagonale)
-        while (x < btns.length && x < width && y >= 0 && y < height) {
+        while (x >= 0 && x < width && y >= 0 && y < height) {
             String symbol = btns[y][x].getText();
 
             if (symbol.isEmpty()) {
