@@ -13,15 +13,14 @@ import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import static com.example.projektgui.HelloController.spielerReihe;
 
 public class HelloApplication extends Application {
 
-    private Button[][] btns = new Button[3][3];
-    private int[][] feld =  new int[3][3];//1 = X und 2 = Kreis für 2d 3mal3 Array
+    public Button [][] btns = new Button[3][3];
+    public int [][] feld =  new int[3][3];//1 = X und 2 = Kreis für 2d 3mal3 Array
     Label whoWins;
     Label einfuehrung;
     Button b2;
@@ -93,7 +92,6 @@ public class HelloApplication extends Application {
         root.getChildren().add(b2);
         b2.setOnAction(event -> {
             feldLeeren();
-            whoWins.setText("Es gibt noch keinen Gewinner :)");
         });
         b2.setVisible(false);
 
@@ -151,8 +149,8 @@ public class HelloApplication extends Application {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         Button geklickterButton = (Button) actionEvent.getSource();
-                        row = GridPane.getRowIndex(geklickterButton) != null ? GridPane.getRowIndex(geklickterButton) : 0;
-                        col = GridPane.getColumnIndex(geklickterButton) != null ? GridPane.getColumnIndex(geklickterButton) : 0;
+                        row = GridPane.getRowIndex(geklickterButton) ;
+                        col = GridPane.getColumnIndex(geklickterButton);
 
                         // Wenn das Spiel schon gewonnen ist oder Feld besetzt, mach nichts
                         if (!geklickterButton.getText().equals("") || win) {
@@ -169,7 +167,10 @@ public class HelloApplication extends Application {
                             int y = col;
                             feld[x][y] = 1;
                             spielerReihe = false;
-                        } else {
+                        }
+
+
+                        else {
                             javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                             ImageView ansichtO = new ImageView(iconO);
                             ansichtO.setFitHeight(70);
@@ -182,19 +183,41 @@ public class HelloApplication extends Application {
                         }
                         zuege++;
 
-                        // Gewinner prüfen (3er Kette gesucht)
-                        String gewinner = check(btns, 3);
-                        if (!gewinner.isEmpty()) {
-                            whoWins.setText("Spieler " + gewinner + " gewinnt!");
-                            feldLeeren();
-                        } else if (zuege == 9) {
-                            whoWins.setText("Es gibt keinen Gewinner :(");
+                        // Gewinner prüfen
+                        String gewinner = "";
+                        int i = check(feld, 3);
+
+                        if (i == 1) {
+                            gewinner = "X";
+                            whoWins.setText("Spieler X hat gewonnen");
                             feldLeeren();
                         }
+                        if(i == 2) {
+                            gewinner = "O";
+                            whoWins.setText("Spieler O hat gewonnen");
+                            feldLeeren();
+                        }
+                         else if (zuege == 9) {
+                            whoWins.setText("Es gibt keinen Gewinner :(");
+                            feldLeeren();
+                            zuege = 0;
+                        }
+                         //durchsucht das Array dies ist für den Host zum notieren der Züge
+                        /*for(int a = 0; a < feld.length; a++)
+                        {
+                            for (int c = 0; c < feld.length; c++) {
+                                System.out.print(feld[a][c]);
+                            }
+                            System.out.println("");
+                        }
+                        System.out.println("");
+
+                         */
                     }
                 });
 
                     gridPane.add(b, e, i);
+
 
             }
         }
@@ -217,6 +240,7 @@ public class HelloApplication extends Application {
         for (int i = 0; i < btns.length; i++) {
             for (int e = 0; e < btns.length; e++) {
                 btns[i][e].setGraphic(null);
+                feld[i][e] = 0;
             }
         }
 
@@ -227,74 +251,81 @@ public class HelloApplication extends Application {
     /* 1 2 3
        4 5 6
        7 8 9 */
-    public String check(Button[][] btns, int score) {
+    public int check(int[][] feld, int score) {
         //vertical Vektor 0/1
-        for (int i = 0; i < btns[0].length; i++) {
-            String result = checkLine(btns, i,0 , 0, 1, score);
-            if (!result.isEmpty()) {
+        for (int i = 0; i < feld[0].length; i++) {
+            int result = checkLine(feld, i,0 , 0, 1, score);
+            if(result != 0)
+            {
                 return result;
             }
+
         }
         //horizontal Vektor 1/0
-        for (int i = 0; i < btns[0].length; i++) {
-            String result = checkLine(btns, 0,i , 1, 0, score);
-            if (!result.isEmpty()) {
+        for (int i = 0; i < feld[0].length; i++) {
+            int result = checkLine(feld, 0,i , 1, 0, score);
+            if(result != 0)
+            {
+                return result;
+            }
+
+        }
+        //diagonal / Vektor -1/1
+        for (int i = 0; i < feld.length; i++) {
+            //geht horizontal
+            int result = checkLine(feld, 0, i, -1, 1, score);
+            if(result != 0)
+            {
                 return result;
             }
         }
-        //diagonal / Vektor -1/1
-        for (int i = 0; i < btns.length; i++) {
-            //geht horizontal
-            String result = checkLine(btns, 0, i, -1, 1, score);
-            if (!result.isEmpty()) {
-                return result;
-            }
-            result = checkLine(btns, i, btns[0].length - 1, 1, -1, score);
-            if (!result.isEmpty()) {
+        for (int i = 0; i < feld.length; i++) {
+            int result = checkLine(feld, i, feld[0].length - 1, 1, -1, score);
+            if(result != 0) {
                 return result;
             }
 
         }
 
         //diagonal\ Vektor 1/1
-        for (int i = 0; i < btns.length; i++) {
+        for (int i = 0; i < feld.length; i++) {
             //geht horizontal
-            String result = checkLine(btns, 0,i ,1, 1, score);
-            if (!result.isEmpty()) {
+            int result = checkLine(feld, 0, i, 1, 1, score);
+            if(result != 0) {
                 return result;
             }
-            //geht diagonal von 0/0 bis 0/2
-            result = checkLine(btns, 0,i ,1, 1, score);
-            if (!result.isEmpty()) {
-                return result;
-            }
-            //geht diagonal von 2/0 bis 2/2
-
         }
-        return "";
+        for (int i = 0; i < feld.length; i++) {
+            //geht diagonal von 0/0 bis 0/2
+            int result = checkLine(feld, 0,i ,1, 1, score);
+            if(result != 0) {
+                return result;
+            }
+        }
+        return 0;
     }
 
-    public String checkLine(Button[][] btns, int x, int y, int deltaX, int deltaY, int score) {
-        int height = btns.length;
-        int width = btns[0].length;
-        String currentSymbol = "";
+    public int checkLine(int[][]feld, int x, int y, int deltaX, int deltaY, int score) {
+        int height = feld.length;
+        int width = feld[0].length;
+        int currentSymbol = 0;
         int symbolCounter = 0;
 
         while (x >= 0 && x < width && y >= 0 && y < height) {
-            String symbol = btns[y][x].getText();
+            int symbol = feld[y][x];
 
-            if (symbol.isEmpty()) {
-                currentSymbol = "";
+            if (symbol == 0) {
+                currentSymbol = 0;
                 symbolCounter = 0;
             }
-            else if (symbol.equals(currentSymbol)) {
+            else if (symbol == currentSymbol) {
                 symbolCounter++;
             }
             else {
                 currentSymbol = symbol;
                 symbolCounter = 1;
             }
-            if (symbolCounter == score && !symbol.isEmpty()) {
+            if (symbolCounter == score && symbol != 0) {
                 //wer hat gewonnen
                 return symbol;
             }
@@ -303,6 +334,6 @@ public class HelloApplication extends Application {
         }
 
         // wenn keine reihe gefunden wurde
-        return "";
+        return 0;
     }
 }
