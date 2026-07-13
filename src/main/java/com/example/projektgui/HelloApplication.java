@@ -8,6 +8,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -20,72 +21,81 @@ import static com.example.projektgui.HelloController.spielerReihe;
 public class HelloApplication extends Application {
 
     private Button[][] btns = new Button[3][3];
+    private int[][] feld =  new int[3][3];//1 = X und 2 = Kreis für 2d 3mal3 Array
     Label whoWins;
     Label einfuehrung;
     Button b2;
     Button b1;
+    Button b3;
     Button einSpieler;
     Button zweiSpieler;
     int zuege = 0;
     boolean win = false;
-    String spielModi;
+    int spielModi;
+    GridPane gridPane = new GridPane();
+    Group root = new Group();
+    boolean mehrspieler = false; //1 = X und 2 = Kreis für 2d 3mal3 Array
+    String inhalt;
+    int row = 0; //Spalte
+    int col = 0;//Zeile
 
     @Override
     public void start(Stage stage) {
-        initBtnsArray();
-        Group root = new Group();
-
-        root.getChildren().add(getGrid());
-        Scene scene = new Scene(root, 420, 480);
-        root.setStyle("-fx-background-color: #3498db;");
-
         stage.setTitle("TicTacToe");
         {
-
             javafx.scene.image.Image icon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon1.png")));
             stage.getIcons().add(icon);
         }
 
-        stage.setScene(scene);
-        stage.show();
-
-        einfuehrung = new Label("");
+        einfuehrung = new Label("spiele TicTacToe...!");
         einfuehrung.setPrefSize(220, 100);
         einfuehrung.setLayoutX(50);
         einfuehrung.setLayoutY(1);
-        if(spielModi == "1Spieler" ||spielModi == "2Spieler"){
-            root.getChildren().add(einfuehrung);
-        }
+        root.getChildren().add(einfuehrung);
 
 
-        whoWins = new Label("");
+        whoWins = new Label("Es gibt noch keinen Gewinner:)");
         whoWins.setPrefSize(180, 100);
         whoWins.setLayoutX(200);
         whoWins.setLayoutY(1);
-        if(spielModi == "1Spieler" ||spielModi == "2Spieler") {
-            root.getChildren().add(whoWins);
-        }
-        b1 = new Button("");
-        b1.setPrefSize(70, 50);
-        b1.setLayoutX(100);
+        root.getChildren().add(whoWins);
+        whoWins.setVisible(false);
+
+        //Button b1 zum Beenden ist zuerst unsichtbar
+        b1 = new Button("Beenden");
+        b1.setPrefSize(75, 50);
+        b1.setLayoutX(150);
         b1.setLayoutY(420);
-        if(spielModi == "1Spieler" ||spielModi == "2Spieler") {
-            root.getChildren().add(b1);
-        }
+        root.getChildren().add(b1);
         b1.setOnAction(event -> {
             stage.close();
         });
-        b2 = new Button("");
+
+        b3 = new Button("zurück");
+        b3.setPrefSize(75, 50);
+        b3.setLayoutX(50);
+        b3.setLayoutY(420);
+        root.getChildren().add(b3);
+        b3.setOnAction(event -> {
+            feldLeeren();
+            gridPane.setVisible(false);
+            b2.setVisible(false);
+            whoWins.setVisible(false);
+            zweiSpieler.setVisible(true);
+            einSpieler.setVisible(true);
+        });
+
+        //Button b2 zum Felder löschen
+        b2 = new Button("Felder zurücksetzen");
         b2.setPrefSize(130, 50);
-        b2.setLayoutX(200);
+        b2.setLayoutX(240);
         b2.setLayoutY(420);
-        if(spielModi == "1Spieler" ||spielModi == "2Spieler") {
-            root.getChildren().add(b2);
-        }
+        root.getChildren().add(b2);
         b2.setOnAction(event -> {
-            buttonsleeren();
+            feldLeeren();
             whoWins.setText("Es gibt noch keinen Gewinner :)");
         });
+        b2.setVisible(false);
 
 
         einSpieler = new Button("1Spieler");
@@ -94,25 +104,42 @@ public class HelloApplication extends Application {
         einSpieler.setLayoutY(240);
         root.getChildren().add(einSpieler);
         einSpieler.setOnAction(event -> {
-            System.out.println("Ein Spieler wurde ausgewählt ");
-            spielModi = "1Spieler";
+            spielModi = 1 ;
+            gridPane.setVisible(true);
+            einSpieler.setVisible(false);
+            zweiSpieler.setVisible(false);
+            b2.setVisible(true);
+            whoWins.setVisible(true);
         });
+
+
         zweiSpieler = new Button("2Spieler");
         zweiSpieler.setPrefSize(70, 50);
         zweiSpieler.setLayoutX(220);
         zweiSpieler.setLayoutY(240);
         root.getChildren().add(zweiSpieler);
-        zweiSpieler.setOnAction(event -> {
-            System.out.println(" Zwei Spieler wurde ausgewählt");
-            spielModi = "2Spieler";
+            zweiSpieler.setOnAction(event -> {
+                spielModi = 2;
+                gridPane.setVisible(true);
+                einSpieler.setVisible(false);
+                zweiSpieler.setVisible(false);
+                b2.setVisible(true);
+                whoWins.setVisible(true);
+                mehrspieler = true;
+            });
 
-        });
 
-
+        createButtons();
+        root.getChildren().add(getGrid());
+        gridPane.setVisible(false);
+        Scene scene = new Scene(root, 420, 480);
+        root.setStyle("-fx-background-color: #3498db;");
+        stage.setScene(scene);
+        stage.show();
     }
 
     private Pane getGrid() {
-        GridPane gridPane = new GridPane();
+
         gridPane.setHgap(10);
         gridPane.setVgap(10);
 
@@ -124,6 +151,8 @@ public class HelloApplication extends Application {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         Button geklickterButton = (Button) actionEvent.getSource();
+                        row = GridPane.getRowIndex(geklickterButton) != null ? GridPane.getRowIndex(geklickterButton) : 0;
+                        col = GridPane.getColumnIndex(geklickterButton) != null ? GridPane.getColumnIndex(geklickterButton) : 0;
 
                         // Wenn das Spiel schon gewonnen ist oder Feld besetzt, mach nichts
                         if (!geklickterButton.getText().equals("") || win) {
@@ -131,10 +160,24 @@ public class HelloApplication extends Application {
                         }
 
                         if (spielerReihe) {
-                            geklickterButton.setText("X");
+                            javafx.scene.image.Image iconX = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild1.png")));
+                            ImageView ansichtX = new ImageView(iconX);
+                            ansichtX.setFitHeight(70);
+                            ansichtX.setFitWidth(70);
+                            geklickterButton.setGraphic(ansichtX);
+                            int x = row;
+                            int y = col;
+                            feld[x][y] = 1;
                             spielerReihe = false;
                         } else {
-                            geklickterButton.setText("O");
+                            javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                            ImageView ansichtO = new ImageView(iconO);
+                            ansichtO.setFitHeight(70);
+                            ansichtO.setFitWidth(70);
+                            geklickterButton.setGraphic(ansichtO);
+                            int x = row;
+                            int y = col;
+                            feld[x][y] = 2;
                             spielerReihe = true;
                         }
                         zuege++;
@@ -143,19 +186,15 @@ public class HelloApplication extends Application {
                         String gewinner = check(btns, 3);
                         if (!gewinner.isEmpty()) {
                             whoWins.setText("Spieler " + gewinner + " gewinnt!");
-                            buttonsleeren();
+                            feldLeeren();
                         } else if (zuege == 9) {
                             whoWins.setText("Es gibt keinen Gewinner :(");
-                            buttonsleeren();
+                            feldLeeren();
                         }
                     }
                 });
-                if(spielModi == "1Spieler" ||  spielModi == "2Spieler") {
+
                     gridPane.add(b, e, i);
-                    whoWins.setText("Es gibt noch keinen Gewinner :)");
-                    b1.setText("Beenden");
-                    b2.setText("Felder zurücksetzen");
-                }
 
             }
         }
@@ -165,26 +204,25 @@ public class HelloApplication extends Application {
         return gridPane;
     }
 
-    private void initBtnsArray() {
+    private void createButtons() {
         for (int i = 0; i < btns.length; i++) {
             for (int e = 0; e < btns[i].length; e++) {
                 btns[i][e] = new Button("");
                 btns[i][e].setPrefSize(100, 100);
-                // größere Schrift für das X und O
-                btns[i][e].setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
             }
         }
     }
 
-    public void buttonsleeren() {
+    public void feldLeeren() {
         for (int i = 0; i < btns.length; i++) {
-                for (int e = 0; e < btns.length; e++) {
-                    btns[i][e].setText("");
-                }
+            for (int e = 0; e < btns.length; e++) {
+                btns[i][e].setGraphic(null);
             }
-            zuege = 0;
-            win = false;
         }
+
+        zuege = 0;
+        win = false;
+    }
 
     /* 1 2 3
        4 5 6
