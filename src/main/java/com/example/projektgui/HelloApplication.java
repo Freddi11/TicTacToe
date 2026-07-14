@@ -28,6 +28,9 @@ public class HelloApplication extends Application {
     Button b3;
     Button einSpieler;
     Button zweiSpieler;
+    Button lMehrspieler;
+    Button host;
+    Button client;
     int zuege = 0;
     boolean win = false;
     int spielModi;
@@ -37,6 +40,7 @@ public class HelloApplication extends Application {
     String inhalt;
     int row = 0; //Spalte
     int col = 0;//Zeile
+    String hC;
 
     @Override
     public void start(Stage stage) {
@@ -44,18 +48,21 @@ public class HelloApplication extends Application {
         {
             javafx.scene.image.Image icon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon1.png")));
             stage.getIcons().add(icon);
+
         }
         einSpieler = new Button("1Spieler");
         einSpieler.setPrefSize(70, 50);
         einSpieler.setLayoutX(120);
-        einSpieler.setLayoutY(240);
+        einSpieler.setLayoutY(150);
         root.getChildren().add(einSpieler);
         einSpieler.setOnAction(event -> {
             spielModi = 1;
+            System.out.print(spielModi);
             gridPane.setVisible(true);
             einSpieler.setVisible(false);
             zweiSpieler.setVisible(false);
             b2.setVisible(true);
+            lMehrspieler.setVisible(false);
             whoWins.setVisible(true);
         });
 
@@ -63,16 +70,79 @@ public class HelloApplication extends Application {
         zweiSpieler = new Button("2Spieler");
         zweiSpieler.setPrefSize(70, 50);
         zweiSpieler.setLayoutX(220);
-        zweiSpieler.setLayoutY(240);
+        zweiSpieler.setLayoutY(150);
         root.getChildren().add(zweiSpieler);
         zweiSpieler.setOnAction(event -> {
             spielModi = 2;
+
+            einSpieler.setVisible(false);
+            zweiSpieler.setVisible(false);
+            lMehrspieler.setVisible(false);
+            mehrspieler = true;
+            client.setVisible(true);
+            host.setVisible(true);
+
+        });
+        lMehrspieler = new Button("lokaler Mehrspieler");
+        lMehrspieler.setPrefSize(150, 50);
+        lMehrspieler.setLayoutX(130);
+        lMehrspieler.setLayoutY(220);
+        root.getChildren().add(lMehrspieler);
+        lMehrspieler.setOnAction(event -> {
+            spielModi = 3;
             gridPane.setVisible(true);
             einSpieler.setVisible(false);
             zweiSpieler.setVisible(false);
+            lMehrspieler.setVisible(false);
             b2.setVisible(true);
             whoWins.setVisible(true);
             mehrspieler = true;
+
+
+
+        });
+        client = new Button("client");
+        client.setPrefSize(50, 50);
+        client.setLayoutX(100);
+        client.setLayoutY(220);
+        root.getChildren().add(client);
+        client.setVisible(false);
+
+        host = new Button("host");
+        host.setPrefSize(50, 50);
+        host.setLayoutX(200);
+        host.setLayoutY(220);
+        root.getChildren().add(host);
+        host.setVisible(false);
+
+        client.setOnAction(event -> {
+            spielModi = 2;
+
+            einSpieler.setVisible(false);
+            zweiSpieler.setVisible(false);
+            lMehrspieler.setVisible(false);
+            b2.setVisible(true);
+            whoWins.setVisible(true);
+            mehrspieler = true;
+            client.setVisible(false);
+            host.setVisible(false);
+            gridPane.setVisible(true);
+            client();
+        });
+        host.setOnAction(event -> {
+            host();
+            spielModi = 2;
+
+            einSpieler.setVisible(false);
+            zweiSpieler.setVisible(false);
+            lMehrspieler.setVisible(false);
+            b2.setVisible(true);
+            whoWins.setVisible(true);
+            mehrspieler = true;
+            client.setVisible(false);
+            host.setVisible(false);
+            gridPane.setVisible(true);
+            host();
         });
 
         einfuehrung = new Label("spiele TicTacToe...!");
@@ -111,7 +181,10 @@ public class HelloApplication extends Application {
             whoWins.setVisible(false);
             zweiSpieler.setVisible(true);
             einSpieler.setVisible(true);
+            lMehrspieler.setVisible(true);
             spielModi = 0;
+            host.setVisible(false);
+            client.setVisible(false);
         });
 
         //Button b2 zum Felder löschen
@@ -155,20 +228,39 @@ public class HelloApplication extends Application {
                             return;
                         }
 
-                        if (spielerReihe) {
+                        if (spielerReihe == true && spielModi != 2) {
                             javafx.scene.image.Image iconX = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild1.png")));
                             ImageView ansichtX = new ImageView(iconX);
                             ansichtX.setFitHeight(70);
                             ansichtX.setFitWidth(70);
                             geklickterButton.setGraphic(ansichtX);
-                            int x = row;
-                            int y = col;
-                            feld[x][y] = 1;
+                            feld[row][col] = 1;
                             spielerReihe = false;
                             zuege++;
                         }
-                        if (spielerReihe == false) {
-                            computerZug();
+
+                        else{
+
+                            if(spielModi == 3) {
+                                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                                ImageView ansichtO = new ImageView(iconO);
+                                ansichtO.setFitHeight(70);
+                                ansichtO.setFitWidth(70);
+                                geklickterButton.setGraphic(ansichtO);
+                                int x = row;
+                                int y = col;
+                                feld[x][y] = 2;
+                                spielerReihe = true;
+                                zuege++;
+
+                            }
+
+
+                        }
+                        if(spielModi == 1) {
+                            if (spielerReihe == false) {
+                                computerZug();
+                            }
                         }
 
 
@@ -200,14 +292,16 @@ public class HelloApplication extends Application {
                         System.out.println("");
 
 
+
                     }
+
 
                 });
                 gridPane.add(b, e, i);
 
 
-            }
 
+        }
 
             // Verschiebung des gesamten GridPanes einmalig setzen (außerhalb der Schleife reicht)
             gridPane.setTranslateX(50);
@@ -364,7 +458,7 @@ public class HelloApplication extends Application {
        7 8 9 */
     public int check(int[][] feld, int score) {
         //vertical Vektor 0/1
-        if (spielModi == 1) {
+        if (spielModi == 1 || spielModi == 3) {
 
 
             for (int i = 0; i < feld[0].length; i++) {
@@ -419,7 +513,7 @@ public class HelloApplication extends Application {
     }
 
     public int checkLine(int[][] feld, int x, int y, int deltaX, int deltaY, int score) {
-        if (spielModi == 1) {
+        if (spielModi == 1 || spielModi == 3) {
 
 
             int height = feld.length;
@@ -449,5 +543,15 @@ public class HelloApplication extends Application {
         }
         // wenn keine reihe gefunden wurde
         return 0;
+    }
+
+    public void host()
+    {
+        System.out.println("Verbindung wird aufgebaut...");
+    }
+
+    public void client()
+    {
+
     }
 }
