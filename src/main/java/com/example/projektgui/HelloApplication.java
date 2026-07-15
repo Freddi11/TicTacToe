@@ -7,20 +7,31 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Scanner;
 
 import static com.example.projektgui.HelloController.spielerReihe;
 
 public class HelloApplication extends Application {
 
-    public Button[][] btns = new Button[3][3];
-    public int[][] feld = new int[3][3];//1 = X und 2 = Kreis für 2d 3mal3 Array
+    Button[][] btns = new Button[3][3];
+    int[][] feld = new int[3][3];//1 = X und 2 = Kreis für 2d 3mal3 Array
+    char[] feld1;
     Label whoWins;
     Label einfuehrung;
     Button b2;
@@ -37,20 +48,19 @@ public class HelloApplication extends Application {
     GridPane gridPane = new GridPane();
     Group root = new Group();
     boolean mehrspieler = false; //1 = X und 2 = Kreis für 2d 3mal3 Array
-    String inhalt;
     int row = 0; //Spalte
     int col = 0;//Zeile
-    String hC;
+    String nachricht;
 
     @Override
     public void start(Stage stage) {
         stage.setTitle("TicTacToe");
         {
-            javafx.scene.image.Image icon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon1.png")));
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon1.png")));
             stage.getIcons().add(icon);
 
         }
-        einSpieler = new Button("1Spieler");
+        einSpieler = new Button("1 Spieler");
         einSpieler.setPrefSize(70, 50);
         einSpieler.setLayoutX(120);
         einSpieler.setLayoutY(150);
@@ -67,12 +77,12 @@ public class HelloApplication extends Application {
         });
 
 
-        zweiSpieler = new Button("2Spieler");
+        zweiSpieler = new Button("2 Spieler");
         zweiSpieler.setPrefSize(70, 50);
         zweiSpieler.setLayoutX(220);
         zweiSpieler.setLayoutY(150);
         root.getChildren().add(zweiSpieler);
-        zweiSpieler.setOnAction(event -> {
+        zweiSpieler.setOnAction(_ -> {
             spielModi = 2;
 
             einSpieler.setVisible(false);
@@ -81,6 +91,7 @@ public class HelloApplication extends Application {
             mehrspieler = true;
             client.setVisible(true);
             host.setVisible(true);
+            b2.setVisible(false);
 
         });
         lMehrspieler = new Button("lokaler Mehrspieler");
@@ -88,7 +99,7 @@ public class HelloApplication extends Application {
         lMehrspieler.setLayoutX(130);
         lMehrspieler.setLayoutY(220);
         root.getChildren().add(lMehrspieler);
-        lMehrspieler.setOnAction(event -> {
+        lMehrspieler.setOnAction(_ -> {
             spielModi = 3;
             gridPane.setVisible(true);
             einSpieler.setVisible(false);
@@ -97,7 +108,6 @@ public class HelloApplication extends Application {
             b2.setVisible(true);
             whoWins.setVisible(true);
             mehrspieler = true;
-
 
 
         });
@@ -127,10 +137,18 @@ public class HelloApplication extends Application {
             client.setVisible(false);
             host.setVisible(false);
             gridPane.setVisible(true);
-            client();
+            try {
+                client();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
         host.setOnAction(event -> {
-            host();
+            try {
+                host();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             spielModi = 2;
 
             einSpieler.setVisible(false);
@@ -142,7 +160,11 @@ public class HelloApplication extends Application {
             client.setVisible(false);
             host.setVisible(false);
             gridPane.setVisible(true);
-            host();
+            try {
+                host();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         einfuehrung = new Label("spiele TicTacToe...!");
@@ -229,7 +251,7 @@ public class HelloApplication extends Application {
                         }
 
                         if (spielerReihe == true && spielModi != 2) {
-                            javafx.scene.image.Image iconX = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild1.png")));
+                            Image iconX = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild1.png")));
                             ImageView ansichtX = new ImageView(iconX);
                             ansichtX.setFitHeight(70);
                             ansichtX.setFitWidth(70);
@@ -237,12 +259,10 @@ public class HelloApplication extends Application {
                             feld[row][col] = 1;
                             spielerReihe = false;
                             zuege++;
-                        }
+                        } else {
 
-                        else{
-
-                            if(spielModi == 3) {
-                                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                            if (spielModi == 3) {
+                                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                                 ImageView ansichtO = new ImageView(iconO);
                                 ansichtO.setFitHeight(70);
                                 ansichtO.setFitWidth(70);
@@ -257,7 +277,7 @@ public class HelloApplication extends Application {
 
 
                         }
-                        if(spielModi == 1) {
+                        if (spielModi == 1) {
                             if (spielerReihe == false) {
                                 computerZug();
                             }
@@ -292,7 +312,6 @@ public class HelloApplication extends Application {
                         System.out.println("");
 
 
-
                     }
 
 
@@ -300,8 +319,7 @@ public class HelloApplication extends Application {
                 gridPane.add(b, e, i);
 
 
-
-        }
+            }
 
             // Verschiebung des gesamten GridPanes einmalig setzen (außerhalb der Schleife reicht)
             gridPane.setTranslateX(50);
@@ -315,10 +333,9 @@ public class HelloApplication extends Application {
     public void computerZug() {
         if (spielModi == 1) {
             int count = 0;
-            for(int i = 0; i < btns.length; i++) {
-                for(int e = 0; e < btns.length; e++) {
-                    if(feld[i][e]==2)
-                    {
+            for (int i = 0; i < btns.length; i++) {
+                for (int e = 0; e < btns.length; e++) {
+                    if (feld[i][e] == 2) {
                         count++;
                     }
 
@@ -327,13 +344,10 @@ public class HelloApplication extends Application {
             }
 
 
-
-            if(feld[1][0] == 2 && feld[1][2] == 2 )
-            {
-                if(feld[1][1] == 0)
-                {
+            if (feld[1][0] == 2 && feld[1][2] == 2) {
+                if (feld[1][1] == 0) {
                     feld[1][1] = 2;
-                    javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                    Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                     ImageView ansichtO = new ImageView(iconO);
                     ansichtO.setFitHeight(70);
                     ansichtO.setFitWidth(70);
@@ -343,14 +357,10 @@ public class HelloApplication extends Application {
             }
 
 
-
-
-            if(feld[feld.length - 1][0] == 2 && feld[0][feld[0].length - 1]==2)
-            {
-                if(feld[1][1] == 0)
-                {
+            if (feld[feld.length - 1][0] == 2 && feld[0][feld[0].length - 1] == 2) {
+                if (feld[1][1] == 0) {
                     feld[1][1] = 2;
-                    javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                    Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                     ImageView ansichtO = new ImageView(iconO);
                     ansichtO.setFitHeight(70);
                     ansichtO.setFitWidth(70);
@@ -361,7 +371,7 @@ public class HelloApplication extends Application {
 
             if (feld[feld.length - 1][0] == 0) {
                 feld[feld.length - 1][0] = 2;
-                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                 ImageView ansichtO = new ImageView(iconO);
                 ansichtO.setFitHeight(70);
                 ansichtO.setFitWidth(70);
@@ -370,7 +380,7 @@ public class HelloApplication extends Application {
 
             } else if (feld[0][feld[0].length - 1] == 0) {
                 feld[0][feld[0].length - 1] = 2;
-                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                 ImageView ansichtO = new ImageView(iconO);
                 ansichtO.setFitHeight(70);
                 ansichtO.setFitWidth(70);
@@ -379,7 +389,7 @@ public class HelloApplication extends Application {
 
             } else if (feld[0][0] == 0) {
                 feld[0][0] = 2;
-                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                 ImageView ansichtO = new ImageView(iconO);
                 ansichtO.setFitHeight(70);
                 ansichtO.setFitWidth(70);
@@ -387,25 +397,22 @@ public class HelloApplication extends Application {
                 zuege++;
             } else if (feld[2][2] == 0) {
                 feld[2][2] = 2;
-                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                 ImageView ansichtO = new ImageView(iconO);
                 ansichtO.setFitHeight(70);
                 ansichtO.setFitWidth(70);
                 btns[2][2].setGraphic(ansichtO);
                 zuege++;
 
-            }
-            else if(feld[1][1] == 0)
-            {
+            } else if (feld[1][1] == 0) {
                 feld[1][1] = 2;
-                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                 ImageView ansichtO = new ImageView(iconO);
                 ansichtO.setFitHeight(70);
                 ansichtO.setFitWidth(70);
                 btns[1][1].setGraphic(ansichtO);
                 zuege++;
-            }
-            else if (zuege < 9) {
+            } else if (zuege < 9) {
                 Random random = new Random();
                 int zeile;
                 int spalte;
@@ -416,7 +423,7 @@ public class HelloApplication extends Application {
                     spalte = random.nextInt(3); // Würfelt eine Zahl von 0 bis 2
                 } while (feld[zeile][spalte] == 1 || feld[zeile][spalte] == 2);
                 feld[zeile][spalte] = 2;
-                javafx.scene.image.Image iconO = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
+                Image iconO = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/bild2.png")));
                 ImageView ansichtO = new ImageView(iconO);
                 ansichtO.setFitHeight(70);
                 ansichtO.setFitWidth(70);
@@ -458,7 +465,7 @@ public class HelloApplication extends Application {
        7 8 9 */
     public int check(int[][] feld, int score) {
         //vertical Vektor 0/1
-        if (spielModi == 1 || spielModi == 3) {
+        if (spielModi == 1 || spielModi == 3 || spielModi == 2) {
 
 
             for (int i = 0; i < feld[0].length; i++) {
@@ -513,7 +520,7 @@ public class HelloApplication extends Application {
     }
 
     public int checkLine(int[][] feld, int x, int y, int deltaX, int deltaY, int score) {
-        if (spielModi == 1 || spielModi == 3) {
+        if (spielModi == 1 || spielModi == 3 || spielModi == 2) {
 
 
             int height = feld.length;
@@ -522,7 +529,7 @@ public class HelloApplication extends Application {
             int symbolCounter = 0;
 
             while (x >= 0 && x < width && y >= 0 && y < height) {
-                int symbol = feld[y][x];
+                int symbol = feld[x][y];
 
                 if (symbol == 0) {
                     currentSymbol = 0;
@@ -545,13 +552,100 @@ public class HelloApplication extends Application {
         return 0;
     }
 
-    public void host()
-    {
+    public void host() throws IOException {
         System.out.println("Verbindung wird aufgebaut...");
+        ServerSocket serverSocket = new ServerSocket(11000);
+        Scanner tastatur = new Scanner(System.in);
+        char[] feld1;
+        String vomClient;
+        int[][] feld = new int[3][3];
+
+        // Wartet hier stumpf, bis der Client sich verbindet
+        Socket socket = serverSocket.accept();
+        System.out.println("Client verbunden!");
+
+        // Ein- und Ausgänge einrichten
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+        while (true) {
+            //Nachricht vom Client
+            vomClient = in.readLine();
+            System.out.println("Client sagt: " + vomClient);
+            feld1 = vomClient.toCharArray();
+
+
+            int index = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
+            for (int j = 0; j < 3; j++) {         // Schleife für die Zeilen
+                for (int k = 0; k < 3; k++) {     // Schleife für die Spalten
+                    feld[j][k] = feld1[index];    // Wert übertragen
+                    index++;                      // Zum nächsten Element im 1D-Array springen
+                }
+            }
+            int index1 = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    feld[i][j] = Character.getNumericValue(feld1[index1]);
+                    index1++;
+                }
+            }
+
+            System.out.println("Dein Spielfeld: " + Arrays.deepToString(feld));
+
+
+            //Eigene Nachricht über Konsole eingeben und senden
+            System.out.print("Deine Antwort an Client: ");
+            String antwort = tastatur.nextLine();
+            out.println(antwort);
+
+
+        }
+
     }
 
-    public void client()
-    {
 
+    public void client() throws IOException {
+        // Verbindet sich sofort mit dem localhost
+        Socket socket = new Socket("192.168.180.158", 11000); //ip als String angeben oder "localhost"
+        System.out.println("verbunden");
+        char[] feld1 = new char[0];
+        String vomHost;
+        int[][] feld = new int[3][3];
+
+        // Ein- und Ausgänge einrichten
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        Scanner tastatur = new Scanner(System.in);
+
+        while (true) {
+            // Nachricht eingeben und an Host senden
+            System.out.print("Deine Nachricht:");
+            String nachricht = tastatur.nextLine();
+            out.println(nachricht);
+
+            //Nachricht vom Client
+            vomHost = in.readLine();
+            System.out.println("Client sagt: " + vomHost);
+            feld1 = vomHost.toCharArray();
+
+
+            int index = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
+            for (int j = 0; j < 3; j++) {         // Schleife für die Zeilen
+                for (int k = 0; k < 3; k++) {     // Schleife für die Spalten
+                    feld[j][k] = feld1[index];    // Wert übertragen
+                    index++;                      // Zum nächsten Element im 1D-Array springen
+                }
+            }
+            int index1 = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    feld[i][j] = Character.getNumericValue(feld1[index1]);
+                    index1++;
+                }
+            }
+            int z = check(feld, 3);
+            System.out.println("Spielfeld: " + Arrays.deepToString(feld));
+            System.out.println(z);
+        }
     }
 }
