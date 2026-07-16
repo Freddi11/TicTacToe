@@ -9,13 +9,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -65,6 +67,7 @@ public class HelloApplication extends Application {
         einSpieler.setLayoutX(120);
         einSpieler.setLayoutY(150);
         root.getChildren().add(einSpieler);
+        einSpieler.setFont((Font.font("System", FontWeight.BOLD, 12)));
         einSpieler.setOnAction(event -> {
             spielModi = 1;
             System.out.print(spielModi);
@@ -82,6 +85,7 @@ public class HelloApplication extends Application {
         zweiSpieler.setLayoutX(220);
         zweiSpieler.setLayoutY(150);
         root.getChildren().add(zweiSpieler);
+        zweiSpieler.setFont((Font.font("System", FontWeight.BOLD, 12)));
         zweiSpieler.setOnAction(_ -> {
             spielModi = 2;
 
@@ -99,6 +103,7 @@ public class HelloApplication extends Application {
         lMehrspieler.setLayoutX(130);
         lMehrspieler.setLayoutY(220);
         root.getChildren().add(lMehrspieler);
+        lMehrspieler.setFont((Font.font("System", FontWeight.BOLD, 12)));
         lMehrspieler.setOnAction(_ -> {
             spielModi = 3;
             gridPane.setVisible(true);
@@ -116,6 +121,7 @@ public class HelloApplication extends Application {
         client.setLayoutX(100);
         client.setLayoutY(220);
         root.getChildren().add(client);
+        client.setFont((Font.font("System", FontWeight.BOLD, 12)));
         client.setVisible(false);
 
         host = new Button("host");
@@ -123,6 +129,7 @@ public class HelloApplication extends Application {
         host.setLayoutX(200);
         host.setLayoutY(220);
         root.getChildren().add(host);
+        host.setFont((Font.font("System", FontWeight.BOLD, 12)));
         host.setVisible(false);
 
         client.setOnAction(event -> {
@@ -166,6 +173,7 @@ public class HelloApplication extends Application {
         einfuehrung.setLayoutX(50);
         einfuehrung.setLayoutY(1);
         root.getChildren().add(einfuehrung);
+        einfuehrung.setFont((Font.font("System", FontWeight.BOLD, 12)));
 
 
         whoWins = new Label("Es gibt noch keinen Gewinner:)");
@@ -173,6 +181,7 @@ public class HelloApplication extends Application {
         whoWins.setLayoutX(200);
         whoWins.setLayoutY(1);
         root.getChildren().add(whoWins);
+        whoWins.setFont((Font.font("System", FontWeight.BOLD, 12)));
         whoWins.setVisible(false);
 
         //Button b1 zum Beenden ist zuerst unsichtbar
@@ -181,6 +190,7 @@ public class HelloApplication extends Application {
         b1.setLayoutX(150);
         b1.setLayoutY(420);
         root.getChildren().add(b1);
+        b1.setFont((Font.font("System", FontWeight.BOLD, 12)));
         b1.setOnAction(event -> {
             stage.close();
         });
@@ -190,6 +200,7 @@ public class HelloApplication extends Application {
         b3.setLayoutX(50);
         b3.setLayoutY(420);
         root.getChildren().add(b3);
+        b3.setFont((Font.font("System", FontWeight.BOLD, 12)));
         b3.setOnAction(event -> {
             feldLeeren();
             gridPane.setVisible(false);
@@ -209,6 +220,7 @@ public class HelloApplication extends Application {
         b2.setLayoutX(240);
         b2.setLayoutY(420);
         root.getChildren().add(b2);
+        b2.setFont((Font.font("System", FontWeight.BOLD, 12)));
         b2.setOnAction(event -> {
             feldLeeren();
         });
@@ -217,8 +229,8 @@ public class HelloApplication extends Application {
         createButtons();
         root.getChildren().add(getGrid());
         gridPane.setVisible(false);
-        Scene scene = new Scene(root, 420, 480);
-        root.setStyle("-fx-background-color: #3498db;");
+        Scene scene = new Scene(root, 420, 480, Color.LIGHTBLUE);
+        root.setStyle("-fx-background-color: #87CEEB;");
         stage.setScene(scene);
         stage.show();
     }
@@ -296,14 +308,14 @@ public class HelloApplication extends Application {
                             feldLeeren();
                             zuege = 0;
                         }
-                        //durchsucht das Array dies ist für den Host zum notieren der Züge
+                        /*durchsucht das Array dies ist für den Host zum notieren der Züge
                         for (int a = 0; a < feld.length; a++) {
                             for (int c = 0; c < feld.length; c++) {
                                 System.out.print(feld[a][c]);
                             }
                             System.out.println("");
                         }
-                        System.out.println("");
+                        System.out.println("");*/
 
 
                     }
@@ -318,6 +330,7 @@ public class HelloApplication extends Application {
             // Verschiebung des gesamten GridPanes einmalig setzen (außerhalb der Schleife reicht)
             gridPane.setTranslateX(50);
             gridPane.setTranslateY(70);
+
 
         }
         return gridPane;
@@ -597,7 +610,7 @@ public class HelloApplication extends Application {
             }
 
             // wenn keiner gewonnen:
-            System.out.print("Deine Antwort an Client (Spielfeld als 9er-String oder Text): ");
+            System.out.print("Deine Antwort: ");
             String antwort = tastatur.nextLine();
             out.println(antwort);
 
@@ -610,15 +623,10 @@ public class HelloApplication extends Application {
         //verbindung schließen
         socket.close();
         serverSocket.close();
-        System.out.println("Verbindung geschlossen.");
     }
 
 
     public void client() throws IOException {
-        gridPane.setVisible(true);
-        whoWins.setVisible(true);
-        b2.setVisible(true);
-
         // Verbindet sich sofort mit dem localhost
         Socket socket = new Socket("192.168.180.158", 11000);
         System.out.println("verbunden");
@@ -645,7 +653,6 @@ public class HelloApplication extends Application {
                 socket.close();
                 return;
             }
-
 
             System.out.print("Deine Nachricht: ");
             String nachricht = tastatur.nextLine();
