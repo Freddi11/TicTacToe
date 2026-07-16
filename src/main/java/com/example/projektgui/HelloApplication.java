@@ -144,13 +144,7 @@ public class HelloApplication extends Application {
             }
         });
         host.setOnAction(event -> {
-            try {
-                host();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
             spielModi = 2;
-
             einSpieler.setVisible(false);
             zweiSpieler.setVisible(false);
             lMehrspieler.setVisible(false);
@@ -558,59 +552,79 @@ public class HelloApplication extends Application {
         Scanner tastatur = new Scanner(System.in);
         char[] feld1;
         String vomClient;
-        int[][] feld = new int[3][3];
+        int z = 0;
 
-        // Wartet hier stumpf, bis der Client sich verbindet
+        // Wartet, bis der Client sich verbindet
         Socket socket = serverSocket.accept();
         System.out.println("Client verbunden!");
 
-        // Ein- und Ausgänge einrichten
+        // Ein- und Ausgänge
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
         while (true) {
-            //Nachricht vom Client
+            //nachricht empfangen
             vomClient = in.readLine();
+            if (vomClient == null) {
+                System.out.println("Verbindung vom Client getrennt.");
+                break;
+            }
             System.out.println("Client sagt: " + vomClient);
+            if (vomClient.contains("gewonnen")) {
+                System.out.println("Das Spiel wurde beendet.");
+                break;
+            }
+
             feld1 = vomClient.toCharArray();
-
-
-            int index = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
-            for (int j = 0; j < 3; j++) {         // Schleife für die Zeilen
-                for (int k = 0; k < 3; k++) {     // Schleife für die Spalten
-                    feld[j][k] = feld1[index];    // Wert übertragen
-                    index++;                      // Zum nächsten Element im 1D-Array springen
+            if (feld1.length >= 9) {
+                int index1 = 0;
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        this.feld[i][j] = Character.getNumericValue(feld1[index1]);
+                        index1++;
+                    }
                 }
-            }
-            int index1 = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    feld[i][j] = Character.getNumericValue(feld1[index1]);
-                    index1++;
-                }
+                System.out.println("Dein Spielfeld: " + Arrays.deepToString(this.feld));
             }
 
-            System.out.println("Dein Spielfeld: " + Arrays.deepToString(feld));
+            //prüfe auf gewinn
+            z = check(this.feld, 3);
+            if (z == 1 || z == 2) {
+                String gewinnerNachricht = (z == 1) ? "Spieler X hat gewonnen" : "Spieler O hat gewonnen";
+                out.println(gewinnerNachricht);
+                System.out.println("Spiel beendet! Gesendet: " + gewinnerNachricht);
+                break;
+            }
 
-
-            //Eigene Nachricht über Konsole eingeben und senden
-            System.out.print("Deine Antwort an Client: ");
+            // wenn keiner gewonnen:
+            System.out.print("Deine Antwort an Client (Spielfeld als 9er-String oder Text): ");
             String antwort = tastatur.nextLine();
             out.println(antwort);
 
-
+            // wenn gewonnen beenden
+            if (antwort.contains("gewonnen")) {
+                break;
+            }
         }
 
+        //verbindung schließen
+        socket.close();
+        serverSocket.close();
+        System.out.println("Verbindung geschlossen.");
     }
 
 
     public void client() throws IOException {
+        gridPane.setVisible(true);
+        whoWins.setVisible(true);
+        b2.setVisible(true);
+
         // Verbindet sich sofort mit dem localhost
-        Socket socket = new Socket("192.168.180.158", 11000); //ip als String angeben oder "localhost"
+        Socket socket = new Socket("192.168.180.158", 11000);
         System.out.println("verbunden");
-        char[] feld1 = new char[0];
+        char[] feld1;
         String vomHost;
-        int[][] feld = new int[3][3];
+        int z = 0;
 
         // Ein- und Ausgänge einrichten
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -618,34 +632,51 @@ public class HelloApplication extends Application {
         Scanner tastatur = new Scanner(System.in);
 
         while (true) {
-            // Nachricht eingeben und an Host senden
-            System.out.print("Deine Nachricht:");
+            z = check(feld, 3);
+
+            if (z == 1 || z == 2) {
+                String gewinnerNachricht = (z == 1) ? "Spieler X hat gewonnen" : "Spieler O hat gewonnen";
+
+                // Siegesnachricht senden
+                out.println(gewinnerNachricht);
+                System.out.println("Spiel beendet! Gesendet: " + gewinnerNachricht);
+
+                // verbindung schließen
+                socket.close();
+                return;
+            }
+
+
+            System.out.print("Deine Nachricht: ");
             String nachricht = tastatur.nextLine();
             out.println(nachricht);
 
-            //Nachricht vom Client
+            // antwort empfangen
             vomHost = in.readLine();
-            System.out.println("Client sagt: " + vomHost);
+            if (vomHost == null) {
+                System.out.println("Verbindung vom Host getrennt.");
+                break;
+            }
+            System.out.println("Host sagt: " + vomHost);
+
+            // abbruch,wenn einer gewonnen hat
+            if (vomHost.contains("gewonnen")) {
+                System.out.println("Das Spiel wurde beendet.");
+                socket.close();
+                return;
+            }
             feld1 = vomHost.toCharArray();
-
-
-            int index = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
-            for (int j = 0; j < 3; j++) {         // Schleife für die Zeilen
-                for (int k = 0; k < 3; k++) {     // Schleife für die Spalten
-                    feld[j][k] = feld1[index];    // Wert übertragen
-                    index++;                      // Zum nächsten Element im 1D-Array springen
+            if (feld1.length >= 9) {
+                int index1 = 0;
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        feld[i][j] = Character.getNumericValue(feld1[index1]);
+                        index1++;
+                    }
                 }
+                System.out.println("Spielfeld: " + Arrays.deepToString(feld));
             }
-            int index1 = 0; // Dieser Zähler wandert von 0 bis 8 durch feld1
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    feld[i][j] = Character.getNumericValue(feld1[index1]);
-                    index1++;
-                }
-            }
-            int z = check(feld, 3);
-            System.out.println("Spielfeld: " + Arrays.deepToString(feld));
-            System.out.println(z);
         }
+        socket.close();
     }
 }
